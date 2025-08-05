@@ -15,8 +15,8 @@ import requests
 IMAP_SERVER = 'imap.gmail.com'
 SMTP_SERVER = 'smtp.gmail.com'
 EMAIL = 'leakhaa.warehouse.bot123@gmail.com'
-PASSWORD = 'owpc kbzs lskr cfte'  # Gmail app password
-WAREHOUSE_TEAM_EMAIL = 'leakhaganesh@gmail.com'  # Replace with your target email address
+PASSWORD =   # Gmail app password
+WAREHOUSE_TEAM_EMAIL = 'leakhaa.warehouse.bot123@gmail.com'  # Replace with your target email address
 
 GROQ_API_KEY = "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"  # Replace this with your actual key
 
