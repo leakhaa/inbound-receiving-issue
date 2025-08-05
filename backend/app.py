@@ -12,7 +12,7 @@ app = Flask(__name__, static_folder='../static', template_folder='../templates')
 # AI assistant using LLaMA model
 API_URL = "https://api.groq.com/openai/v1/chat/completions"
 # Secure your API key by using an environment variable
-GROQ_API_KEY = "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"
+GROQ_API_KEY = ""
 HEADERS = {
     "Authorization": f"Bearer {GROQ_API_KEY}",
     "Content-Type": "application/json"
