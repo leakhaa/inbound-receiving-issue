@@ -7,7 +7,7 @@ import json
 
 # AI assistant using LLaMA model
 API_URL = "https://api.groq.com/openai/v1/chat/completions"
-GROQ_API_KEY = "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"  # Secure this!
+GROQ_API_KEY = ""  # Secure this!
 HEADERS = {
     "Authorization": f"Bearer {GROQ_API_KEY}",
     "Content-Type": "application/json"
