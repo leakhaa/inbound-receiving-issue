@@ -4,7 +4,7 @@ import re
 import time
 
 # Use environment variable or replace directly
-GROQ_API_KEY = os.getenv("GROQ_API_KEY", "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")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 
 API_URL = "https://api.groq.com/openai/v1/chat/completions"
 HEADERS = {
