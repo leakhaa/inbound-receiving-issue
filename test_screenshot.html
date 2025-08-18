@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screenshot Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .test-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Screenshot Functionality Test</h1>
+        <p>This page tests the screenshot capture and email functionality.</p>
+        
+        <button class="test-button" onclick="testScreenshot()">Test Screenshot Capture</button>
+        <button class="test-button" onclick="testEmailWithScreenshot()">Test Email with Screenshot</button>
+        
+        <div id="result" class="result" style="display: none;"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        async function captureScreenshot() {
+            try {
+                const canvas = await html2canvas(document.body, {
+                    backgroundColor: '#ffffff',
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true
+                });
+                return canvas.toDataURL('image/png');
+            } catch (error) {
+                console.error('Error capturing screenshot:', error);
+                return null;
+            }
+        }
+
+        async function testScreenshot() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = 'Capturing screenshot...';
+            
+            const screenshotData = await captureScreenshot();
+            
+            if (screenshotData) {
+                resultDiv.innerHTML = `
+                    <h3>✅ Screenshot Captured Successfully!</h3>
+                    <p>Screenshot data length: ${screenshotData.length} characters</p>
+                    <p>Data URL starts with: ${screenshotData.substring(0, 50)}...</p>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <h3>❌ Screenshot Capture Failed</h3>
+                    <p>Please check the console for errors.</p>
+                `;
+            }
+        }
+
+        async function testEmailWithScreenshot() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = 'Capturing screenshot and sending test email...';
+            
+            const screenshotData = await captureScreenshot();
+            
+            if (!screenshotData) {
+                resultDiv.innerHTML = `
+                    <h3>❌ Screenshot Capture Failed</h3>
+                    <p>Cannot send email without screenshot.</p>
+                `;
+                return;
+            }
+            
+            try {
+                const response = await fetch('/test_screenshot', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        screenshot: screenshotData
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <h3>✅ Email with Screenshot Sent Successfully!</h3>
+                        <p>${data.message}</p>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <h3>❌ Email Failed</h3>
+                        <p>${data.message}</p>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <h3>❌ Network Error</h3>
+                    <p>Error: ${error.message}</p>
+                    <p>Make sure the backend server is running.</p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
