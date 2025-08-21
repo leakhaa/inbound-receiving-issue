@@ -2,6 +2,7 @@ import imaplib
 import email
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.mime.image import MIMEImage
 import io
 import smtplib
 import time
@@ -10,15 +11,16 @@ import time
 from datetime import datetime, timedelta
 import smtplib
 import requests
+import base64
 
 # ---------- CONFIGURATION ----------
 IMAP_SERVER = 'imap.gmail.com'
 SMTP_SERVER = 'smtp.gmail.com'
 EMAIL = 'leakhaa.warehouse.bot123@gmail.com'
-PASSWORD =   # Gmail app password
-WAREHOUSE_TEAM_EMAIL = 'leakhaa.warehouse.bot123@gmail.com'  # Replace with your target email address
+PASSWORD = 'owpc kbzs lskr cfte'  # Gmail app password
+WAREHOUSE_TEAM_EMAIL = 'leakhaganesh@gmail.com'  # Replace with your target email address
 
-GROQ_API_KEY = "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"  # Replace this with your actual key
+API_KEY = "sk-xxx"
 
 def generate_email_body(issue_type: str, details: dict) -> str:
     prompt = f"""
@@ -36,7 +38,7 @@ Only return the email body, without greeting or signature.
     response = requests.post(
         "https://api.groq.com/openai/v1/chat/completions",
         headers={
-            "Authorization": f"Bearer {GROQ_API_KEY}",
+            "Authorization": f"Bearer {API_KEY}",
             "Content-Type": "application/json"
         },
         json={
@@ -107,7 +109,7 @@ def get_unread_emails(from_filter=None):
 
 
 
-def wait_for_excel_from_sap(subject_keyword="SAP Reply", timeout=180, check_interval=15):
+def wait_for_excel_from_sap(subject_keyword="SAP Reply", timeout=500, check_interval=15):
     print("Waiting for SAP Excel mail...")
 
     end_time = time.time() + timeout
@@ -159,23 +161,54 @@ def wait_for_trigger_confirmation_from_sap(keyword: str, timeout_minutes: int = 
         time.sleep(30)
     return None
 
-# ---------- SEND EMAIL ----------
-def send_email(to, subject, body, html_format=False):
-    msg = MIMEMultipart()  # ✅ Correctly create a multipart email
+# ---------- SEND EMAIL WITH SCREENSHOT ----------
+def send_email_with_screenshot(to, subject, body, screenshot_data=None, html_format=False):
+    """
+    Send email with optional screenshot attachment.
+    
+    Args:
+        to: recipient email address
+        subject: email subject
+        body: email body text
+        screenshot_data: base64 encoded screenshot data (optional)
+        html_format: whether to send as HTML format
+    """
+    msg = MIMEMultipart()
     msg['From'] = EMAIL
     msg['To'] = to
     msg['Subject'] = subject
 
+    # Add body
     if html_format:
         msg.attach(MIMEText(body, 'html'))
     else:
         msg.attach(MIMEText(body, 'plain'))
 
-    # ✅ Send the email using SMTP
+    # Add screenshot if provided
+    if screenshot_data:
+        try:
+            # Remove data URL prefix if present
+            if screenshot_data.startswith('data:image/'):
+                screenshot_data = screenshot_data.split(',')[1]
+            
+            # Decode base64 data
+            image_data = base64.b64decode(screenshot_data)
+            
+            # Create image attachment
+            image = MIMEImage(image_data)
+            image.add_header('Content-Disposition', 'attachment', filename='screenshot.png')
+            msg.attach(image)
+            
+            print("Screenshot attached to email successfully")
+        except Exception as e:
+            print(f"Error attaching screenshot: {e}")
+
+    # Send the email
     with smtplib.SMTP_SSL(SMTP_SERVER, 465) as server:
         server.login(EMAIL, PASSWORD)
         server.send_message(msg)
 
+# ---------- SEND EMAIL ----------
 def send_email(to, subject, issue_details, html_format=False):
     body = generate_email_body(subject, issue_details)
 
